@@ -1,0 +1,35 @@
+# Sample Pipeline: Market Data Ingestion
+
+$schema: ./generated/pipeline.schema.json
+
+model: Market
+source:
+  type: http
+  url: https://api.exchange.com/v1/markets
+  method: GET
+  jsonPath: $.markets
+mapping:
+  symbol:
+    from: "$.symbol"
+    transform: toUpperCase
+  name:
+    from: "$.name"
+  baseAsset:
+    from: "$.base"
+  quoteAsset:
+    from: "$.quote"
+  price:
+    from: "$.lastPrice"
+    transform: toFloat
+  volume24h:
+    from: "$.volume"
+    transform: toFloat
+    default: 0
+  status:
+    from: "$.status"
+    default: "active"
+options:
+  batchSize: 50
+  retryAttempts: 2
+  onConflict: ignore
+  transform: upsert

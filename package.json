@@ -1,0 +1,30 @@
+{
+  "name": "prisma-yaml-ingestion-framework",
+  "version": "1.0.0",
+  "description": "Static Type-Safe Declarative Ingestion Framework with Prisma-Bound YAML",
+  "main": "dist/index.js",
+  "scripts": {
+    "generate-schema": "ts-node scripts/generate-pipeline-schema.ts",
+    "ingest": "ts-node src/runtime/ingest.ts"
+  },
+  "keywords": [
+    "prisma",
+    "yaml",
+    "ingestion",
+    "pipeline",
+    "type-safe"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@prisma/internals": "^7.4.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^25.3.3",
+    "prisma": "^7.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1"
+  }
+}

@@ -1,0 +1,25 @@
+# Invalid Pipeline: Demonstrates Static Validation Errors
+# This file will show errors in the editor before runtime
+
+$schema: ./generated/pipeline.schema.json
+
+model: InvalidModel  # ERROR: Unknown model name - not in Prisma schema
+source:
+  type: http
+  url: https://api.example.com/data
+mapping:
+  unknownField:  # ERROR: Unknown field - not in Trade model
+    from: "$.field"
+  id:
+    from: "$.id"
+  # Missing required field: price (Float, required in Trade)
+  # Missing required field: timestamp (DateTime, required in Trade)
+  # Missing required field: symbol (String, required in Trade)
+  amount:
+    from: "$.amount"
+    transform: toDate  # ERROR: Invalid transform - toDate not allowed for Float
+  extraField:  # ERROR: additionalProperties: false - extra fields not allowed
+    from: "$.extra"
+options:
+  batchSize: -1  # ERROR: minimum is 1
+  unknownOption: value  # ERROR: additionalProperties: false

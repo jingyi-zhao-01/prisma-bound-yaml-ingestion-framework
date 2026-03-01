@@ -1,0 +1,45 @@
+# Sample Pipeline: Trade Ingestion
+# This pipeline demonstrates proper YAML structure validated against Prisma schema
+# 
+# Static validation errors detected in editor:
+# - Unknown model name (if model is not in Prisma)
+# - Unknown field in mapping (if field doesn't exist in Prisma model)
+# - Missing required Prisma field mapping
+# - Invalid transform for field type
+# - Invalid YAML structure
+# - Extra unmapped properties (additionalProperties: false)
+
+$schema: ./generated/pipeline.schema.json
+
+model: Trade
+source:
+  type: http
+  url: https://api.exchange.com/v1/trades
+  method: GET
+  headers:
+    Authorization: Bearer ${API_TOKEN}
+  jsonPath: $.data
+mapping:
+  id:
+    from: "$.tradeId"
+    transform: toString
+  price:
+    from: "$.price"
+    transform: toFloat
+  amount:
+    from: "$.quantity"
+    transform: toFloat
+  timestamp:
+    from: "$.executedAt"
+    transform: toDate
+    format: ISO8601
+  symbol:
+    from: "$.symbol"
+    transform: trim
+  side:
+    from: "$.side"
+    default: "buy"
+options:
+  batchSize: 100
+  retryAttempts: 3
+  onConflict: update
