@@ -146,8 +146,9 @@ function generatePipelineSchema(
   
   for (const model of models) {
     // Determine required fields (non-optional, non-generated)
+    // Exclude: ID fields, fields with defaults, @updatedAt fields
     const requiredFields = model.fields
-      .filter(f => f.isRequired && !f.default && !f.isId)
+      .filter(f => f.isRequired && !f.default && !f.isId && f.name !== 'updatedAt')
       .map(f => f.name);
     
     // Build mapping properties for each field
@@ -182,7 +183,7 @@ function generatePipelineSchema(
     
     // Build oneOf schema for dynamic model selection
     modelPropertyRefs[model.name] = {
-      $ref: `#/definitions/${model.name}Mapping`,
+      $ref: `#/definitions/${model.name}`,
     };
   }
   

@@ -74,16 +74,16 @@
     "mapping": {
       "oneOf": [
         {
-          "$ref": "#/definitions/TradeMapping"
+          "$ref": "#/definitions/Trade"
         },
         {
-          "$ref": "#/definitions/OrderMapping"
+          "$ref": "#/definitions/Order"
         },
         {
-          "$ref": "#/definitions/PositionMapping"
+          "$ref": "#/definitions/Position"
         },
         {
-          "$ref": "#/definitions/MarketMapping"
+          "$ref": "#/definitions/Market"
         }
       ],
       "description": "Field mappings to Prisma model fields"
@@ -468,8 +468,7 @@
         "price",
         "timestamp",
         "symbol",
-        "side",
-        "updatedAt"
+        "side"
       ],
       "additionalProperties": false
     },
@@ -865,8 +864,7 @@
         "filledQty",
         "orderType",
         "side",
-        "symbol",
-        "updatedAt"
+        "symbol"
       ],
       "additionalProperties": false
     },
@@ -1116,8 +1114,7 @@
         "quantity",
         "avgPrice",
         "unrealizedPnL",
-        "realizedPnL",
-        "updatedAt"
+        "realizedPnL"
       ],
       "additionalProperties": false
     },
@@ -1480,8 +1477,7 @@
         "baseAsset",
         "quoteAsset",
         "price",
-        "volume24h",
-        "updatedAt"
+        "volume24h"
       ],
       "additionalProperties": false
     }
