@@ -17,10 +17,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@prisma/internals": "^7.4.2",
+    "@prisma/client": "^5.22.0",
+    "@prisma/internals": "^5.22.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.3.3",
-    "prisma": "^7.4.2",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },

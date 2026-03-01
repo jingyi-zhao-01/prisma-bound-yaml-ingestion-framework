@@ -1,0 +1,1489 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prisma-yaml-ingestion.framework/pipeline.schema.json",
+  "title": "Prisma-Bound Pipeline Definition",
+  "description": "Declarative ingestion pipeline YAML validated against Prisma schema",
+  "type": "object",
+  "properties": {
+    "model": {
+      "type": "string",
+      "description": "Target Prisma model name",
+      "enum": [
+        "Trade",
+        "Order",
+        "Position",
+        "Market"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "description": "Source configuration (API endpoint, file path, etc.)",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "http",
+            "file",
+            "stream",
+            "webhook"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "description": "URL for HTTP/stream sources"
+        },
+        "path": {
+          "type": "string",
+          "description": "File path for file sources"
+        },
+        "headers": {
+          "type": "object",
+          "description": "HTTP headers",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH"
+          ],
+          "default": "GET"
+        },
+        "body": {
+          "description": "Request body for POST/PUT/PATCH"
+        },
+        "jsonPath": {
+          "type": "string",
+          "description": "JSONPath to extract array from response",
+          "examples": [
+            "$.data",
+            "$.results[*]",
+            "$.items"
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "mapping": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TradeMapping"
+        },
+        {
+          "$ref": "#/definitions/OrderMapping"
+        },
+        {
+          "$ref": "#/definitions/PositionMapping"
+        },
+        {
+          "$ref": "#/definitions/MarketMapping"
+        }
+      ],
+      "description": "Field mappings to Prisma model fields"
+    },
+    "options": {
+      "type": "object",
+      "description": "Ingestion options",
+      "properties": {
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "default": 100
+        },
+        "retryAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        },
+        "retryDelay": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Delay in milliseconds",
+          "default": 1000
+        },
+        "onConflict": {
+          "type": "string",
+          "enum": [
+            "ignore",
+            "update",
+            "error"
+          ],
+          "default": "ignore"
+        },
+        "transform": {
+          "type": "string",
+          "enum": [
+            "direct",
+            "bulk",
+            "upsert"
+          ],
+          "default": "direct"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "model",
+    "source",
+    "mapping"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "Trade": {
+      "type": "object",
+      "description": "Field mappings for Trade model",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.id (String, required)"
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.price (Float, required)"
+        },
+        "amount": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.amount (Float)"
+        },
+        "timestamp": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.timestamp (DateTime, required)"
+        },
+        "symbol": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.symbol (String, required)"
+        },
+        "side": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.side (String, required)"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.status (String, required)"
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.createdAt (DateTime, required)"
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Trade.updatedAt (DateTime, required)"
+        }
+      },
+      "required": [
+        "price",
+        "timestamp",
+        "symbol",
+        "side",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Order": {
+      "type": "object",
+      "description": "Field mappings for Order model",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.id (String, required)"
+        },
+        "orderId": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.orderId (String, required)"
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.price (Float, required)"
+        },
+        "quantity": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.quantity (Float, required)"
+        },
+        "filledQty": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.filledQty (Float, required)"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.status (String, required)"
+        },
+        "orderType": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.orderType (String, required)"
+        },
+        "side": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.side (String, required)"
+        },
+        "symbol": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.symbol (String, required)"
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.createdAt (DateTime, required)"
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Order.updatedAt (DateTime, required)"
+        }
+      },
+      "required": [
+        "orderId",
+        "price",
+        "quantity",
+        "filledQty",
+        "orderType",
+        "side",
+        "symbol",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Position": {
+      "type": "object",
+      "description": "Field mappings for Position model",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.id (String, required)"
+        },
+        "symbol": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.symbol (String, required)"
+        },
+        "quantity": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.quantity (Float, required)"
+        },
+        "avgPrice": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.avgPrice (Float, required)"
+        },
+        "unrealizedPnL": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.unrealizedPnL (Float, required)"
+        },
+        "realizedPnL": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.realizedPnL (Float, required)"
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Position.updatedAt (DateTime, required)"
+        }
+      },
+      "required": [
+        "symbol",
+        "quantity",
+        "avgPrice",
+        "unrealizedPnL",
+        "realizedPnL",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Market": {
+      "type": "object",
+      "description": "Field mappings for Market model",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.id (String, required)"
+        },
+        "symbol": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.symbol (String, required)"
+        },
+        "name": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.name (String, required)"
+        },
+        "baseAsset": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.baseAsset (String, required)"
+        },
+        "quoteAsset": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.quoteAsset (String, required)"
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.price (Float, required)"
+        },
+        "volume24h": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toFloat, toInt, toString, parseFloat",
+              "enum": [
+                "toFloat",
+                "toInt",
+                "toString",
+                "parseFloat"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.volume24h (Float, required)"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: trim, toUpperCase, toLowerCase, toString, substring, replace",
+              "enum": [
+                "trim",
+                "toUpperCase",
+                "toLowerCase",
+                "toString",
+                "substring",
+                "replace"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.status (String, required)"
+        },
+        "createdAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.createdAt (DateTime, required)"
+        },
+        "updatedAt": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "JSONPath or field name to extract from source data",
+              "examples": [
+                "$.id",
+                "$.price",
+                "data.name"
+              ]
+            },
+            "transform": {
+              "type": "string",
+              "description": "Transform function to apply. Allowed: toDate, toISOString, toTimestamp",
+              "enum": [
+                "toDate",
+                "toISOString",
+                "toTimestamp"
+              ]
+            },
+            "default": {
+              "description": "Default value if source field is missing"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "ISO8601",
+                "unix",
+                "unix毫秒"
+              ],
+              "description": "DateTime format hint"
+            }
+          },
+          "required": [
+            "from"
+          ],
+          "additionalProperties": false,
+          "description": "Mapping for Market.updatedAt (DateTime, required)"
+        }
+      },
+      "required": [
+        "symbol",
+        "name",
+        "baseAsset",
+        "quoteAsset",
+        "price",
+        "volume24h",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
